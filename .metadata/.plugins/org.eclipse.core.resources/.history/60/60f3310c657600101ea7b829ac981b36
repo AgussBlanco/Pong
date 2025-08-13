@@ -1,0 +1,21 @@
+package Clases;
+
+import javax.swing.JPanel;
+
+public class PanelPrincipal extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Create the panel.
+	 */
+	public PanelPrincipal() {
+		@Override
+	    protected void paintComponent(Graphics g) {
+	        super.paintComponent(g);
+	        g.setColor(Color.RED); // color del rectángulo
+	        g.fillRect(20, 20, 100, 60); // x, y, ancho, alto
+	    }
+	}
+
+}

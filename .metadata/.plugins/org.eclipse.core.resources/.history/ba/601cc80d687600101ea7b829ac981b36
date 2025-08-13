@@ -1,0 +1,77 @@
+package Clases;
+
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class PanelPrincipal extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+
+    private int rectWidth;
+    private int rectHeight;
+
+
+    private int y1;
+    private int y2;
+
+    public PanelPrincipal() {
+        setFocusable(true);
+        requestFocusInWindow();
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+
+                if (key == KeyEvent.VK_W) y1 -= 5;
+                else if (key == KeyEvent.VK_S) y1 += 5;
+
+                else if (key == KeyEvent.VK_UP) y2 -= 5;
+                else if (key == KeyEvent.VK_DOWN) y2 += 5;
+
+                clampPositions();
+
+                repaint();
+            }
+        });
+    }
+
+    private void clampPositions() {
+        int panelHeight = getHeight();
+
+        y1 = Math.max(0, Math.min(y1, panelHeight - rectHeight));
+        y2 = Math.max(0, Math.min(y2, panelHeight - rectHeight));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+
+        rectWidth = (int)(panelWidth * 0.2);
+        rectHeight = (int)(panelHeight * 0.3);
+
+        if (y1 == 0 && y2 == 0) {
+            y1 = (panelHeight - rectHeight) / 2;
+            y2 = (panelHeight - rectHeight) / 2;
+        }
+
+        int x1 = 0;
+
+  
+        int x2 = panelWidth - rectWidth;
+
+        g.setColor(Color.RED);
+        g.fillRect(x1, y1, rectWidth, rectHeight);
+
+        g.setColor(Color.BLUE);
+        g.fillRect(x2, y2, rectWidth, rectHeight);
+    }
+}
+
+

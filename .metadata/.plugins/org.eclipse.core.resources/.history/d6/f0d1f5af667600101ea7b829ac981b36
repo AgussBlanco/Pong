@@ -1,0 +1,31 @@
+package Clases;
+
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+
+public class PanelPrincipal extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+
+    public PanelPrincipal() {
+     
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        
+        
+        int rectWidth = (int) (panelWidth * 0.02);
+        int rectHeight = (int) (panelHeight * 0.25);
+
+
+        int x = 0;
+        int y = (panelHeight - rectHeight) / 2;
+        g.setColor(Color.blue);
+        g.fillRect(x, y, rectWidth, rectHeight);
+    }
+}

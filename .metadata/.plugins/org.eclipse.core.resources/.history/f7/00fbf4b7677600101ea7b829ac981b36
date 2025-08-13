@@ -1,0 +1,97 @@
+package Clases;
+
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class PanelPrincipal extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+
+    // Tamaño de los rectángulos (proporcional al tamaño del panel)
+    private int rectWidth;
+    private int rectHeight;
+
+    // Posiciones X e Y de los rectángulos (inicializadas después)
+    private int x1, y1;
+    private int x2, y2;
+
+    public PanelPrincipal() {
+        // Inicialmente no sabemos el tamaño, lo calculamos en paintComponent, 
+        // pero para mover vamos a actualizar las posiciones aquí también.
+
+        // Para que el JPanel reciba eventos de teclado
+        setFocusable(true);
+        requestFocusInWindow();
+
+        // Agregamos un listener para capturar las teclas
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+
+                // Mover rectángulo 1 con WASD
+                if (key == KeyEvent.VK_W) y1 -= 5;
+                else if (key == KeyEvent.VK_S) y1 += 5;
+                else if (key == KeyEvent.VK_A) x1 -= 5;
+                else if (key == KeyEvent.VK_D) x1 += 5;
+
+                // Mover rectángulo 2 con flechas
+                else if (key == KeyEvent.VK_UP) y2 -= 5;
+                else if (key == KeyEvent.VK_DOWN) y2 += 5;
+                else if (key == KeyEvent.VK_LEFT) x2 -= 5;
+                else if (key == KeyEvent.VK_RIGHT) x2 += 5;
+
+                // Evitar que los rectángulos salgan del panel
+                clampPositions();
+
+                // Redibujar
+                repaint();
+            }
+        });
+    }
+
+    private void clampPositions() {
+        // Limitar posiciones para que no se salgan del panel
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+
+        x1 = Math.max(0, Math.min(x1, panelWidth - rectWidth));
+        y1 = Math.max(0, Math.min(y1, panelHeight - rectHeight));
+
+        x2 = Math.max(0, Math.min(x2, panelWidth - rectWidth));
+        y2 = Math.max(0, Math.min(y2, panelHeight - rectHeight));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+
+        // Calculamos tamaño proporcional cada vez
+        rectWidth = (int)(panelWidth * 0.2);
+        rectHeight = (int)(panelHeight * 0.5);
+
+        // Si es la primera vez, inicializamos posiciones pegadas a los bordes y centradas verticalmente
+        if (x1 == 0 && y1 == 0 && x2 == 0 && y2 == 0) {
+            x1 = 0;
+            y1 = (panelHeight - rectHeight) / 2;
+
+            x2 = panelWidth - rectWidth;
+            y2 = (panelHeight - rectHeight) / 2;
+        }
+
+        // Dibujar rectángulo 1 en rojo
+        g.setColor(Color.RED);
+        g.fillRect(x1, y1, rectWidth, rectHeight);
+
+        // Dibujar rectángulo 2 en azul
+        g.setColor(Color.BLUE);
+        g.fillRect(x2, y2, rectWidth, rectHeight);
+    }
+}
+
