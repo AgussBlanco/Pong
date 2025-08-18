@@ -34,6 +34,8 @@ public class PanelPrincipal extends JPanel {
     private BufferedImage fondorojo20;
     private BufferedImage fondorojo21;
     private BufferedImage fondoempate1;
+    private BufferedImage fondoBase;
+
     
 
     private int pelotaX, pelotaY;
@@ -48,7 +50,7 @@ public class PanelPrincipal extends JPanel {
     
 
 
-    private int segundosTotales = 3; 
+    private int segundosTotales = 90; 
     private Timer timerJuego;         
     private Timer timerCuenta;       
 
@@ -60,18 +62,35 @@ public class PanelPrincipal extends JPanel {
     private boolean paletasCentradas = false;
 
     public PanelPrincipal() {
-        setFocusable(true);
-       
-        botonReiniciar = new JButton("Volver a jugar");
-        botonReiniciar.setVisible(false);
-        botonReiniciar.addActionListener(e -> reiniciarJuego());
-        this.add(botonReiniciar);
+    
+    	setFocusable(true);
+    	setLayout(null);
+
+    
+    	botonReiniciar = new JButton("VOLVER A JUGAR");
+    	botonReiniciar.setVisible(false);
+    	botonReiniciar.setFont(new java.awt.Font("pixeled", java.awt.Font.BOLD,28));
+    	botonReiniciar.setBackground(java.awt.Color.RED);  
+    	botonReiniciar.setForeground(java.awt.Color.WHITE); 
+    	botonReiniciar.setFocusPainted(false);
+    	botonReiniciar.addActionListener(e -> reiniciarJuego());
+
+    	this.add(botonReiniciar);
         
         
 
         //Carga de texturas
+        
         try { fondo = ImageIO.read(getClass().getResource("/imagenes/fondo.jpg")); } 
         catch (IOException e) { System.out.println("No se pudo cargar la imagen de fondo"); }
+        
+        try { 
+            fondoBase = ImageIO.read(getClass().getResource("/imagenes/fondo.jpg")); 
+            fondo = fondoBase;
+        } catch (IOException e) { 
+            System.out.println("No se pudo cargar la imagen de fondo"); 
+        }
+
 
         try { pelota = ImageIO.read(getClass().getResource("/imagenes/pelotin.png")); } 
         catch (IOException e) { System.out.println("No se pudo cargar la imagen de la pelota"); }
@@ -176,7 +195,7 @@ public class PanelPrincipal extends JPanel {
             segundosTotales--;
             
             
-          if (segundosTotales <= 0) {
+          if (segundosTotales < 0) {
                 segundosTotales = 0;
 
                 timerJuego.stop();
@@ -223,27 +242,25 @@ public class PanelPrincipal extends JPanel {
                 } else {
                     mensajeGanador = "EMPATE";
                 }
+                
+                
+                if (!juegoTerminado) {
+                    new Timer(2000, ev -> {
+                        segundosTotales = 90; 
+                        golesIzquierda = 0;
+                        golesDerecha = 0;
+                        mensajeGanador = null;
+                        posicionarPelotaCentro();
+                        posicionarPaletasCentro();
 
-                if (juegoTerminado) {
-                	 new Timer(2000, ev ->{
-                		 
-                	 });
+                        timerJuego.start();
+                        timerCuenta.start();
+                    }) {{
+                        setRepeats(false);
+                    }}.start();
                 }
-                new Timer(2000, ev -> {
-                    segundosTotales = 10; 
-                    golesIzquierda = 0;
-                    golesDerecha = 0;
-                    mensajeGanador = null;
-                    posicionarPelotaCentro();
-                    posicionarPaletasCentro();
-
-
-                    timerJuego.start();
-                    timerCuenta.start();
-                }) {{
-                    setRepeats(false);
-                }}.start();
             }
+
             repaint();
         });
         timerCuenta.start();
@@ -258,15 +275,25 @@ public class PanelPrincipal extends JPanel {
         mensajeGanador = "";
         botonReiniciar.setVisible(false);
         paletasCentradas = false;
+
+        fondo = fondoBase;
+        segundosTotales = 90;
+
+        posicionarPelotaCentro();
+        posicionarPaletasCentro();
+
+        timerJuego.start();
         timerCuenta.start();
+        repaint();
     }
+
     private void terminarJuegoPosta() {
         juegoTerminado = true;
         timerJuego.stop();
         timerCuenta.stop();
         botonReiniciar.setVisible(true);
-        
     }
+
     
     private void clampPositions() {
         int panelHeight = getHeight();
@@ -353,6 +380,14 @@ public class PanelPrincipal extends JPanel {
         // Pelota
         if (pelota != null) {
             g.drawImage(pelota, pelotaX, pelotaY, pelotaSize, pelotaSize, null);
+        }
+        
+        if (botonReiniciar.isVisible()) {
+            int botonAncho = 300;
+            int botonAlto = 80;
+            botonReiniciar.setBounds((panelWidth - botonAncho) / 2,
+                    (panelHeight - botonAlto) / 2 + 100,
+                    botonAncho, botonAlto);
         }
     }
 }
