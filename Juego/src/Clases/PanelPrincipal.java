@@ -7,6 +7,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.imageio.ImageIO;
@@ -36,8 +39,6 @@ public class PanelPrincipal extends JPanel {
     private BufferedImage fondoempate1;
     private BufferedImage fondoBase;
 
-    
-
     private int pelotaX, pelotaY;
     private int pelotaSize;
     private int pelotaVelX = 10;
@@ -47,8 +48,6 @@ public class PanelPrincipal extends JPanel {
     private String mensajeGanador = null;
     private boolean juegoTerminado = false;
     private JButton botonReiniciar;
-    
-
 
     private int segundosTotales = 90; 
     private Timer timerJuego;         
@@ -61,26 +60,27 @@ public class PanelPrincipal extends JPanel {
     private final Set<Integer> teclasPresionadas = new HashSet<>();
     private boolean paletasCentradas = false;
 
+    // Fuente personalizada cargada desde el recurso
+    private Font fuentePixeled;
+
     public PanelPrincipal() {
-    
-    	setFocusable(true);
-    	setLayout(null);
+        setFocusable(true);
+        setLayout(null);
 
-    
-    	botonReiniciar = new JButton("VOLVER A JUGAR");
-    	botonReiniciar.setVisible(false);
-    	botonReiniciar.setFont(new java.awt.Font("pixeled", java.awt.Font.BOLD,28));
-    	botonReiniciar.setBackground(java.awt.Color.RED);  
-    	botonReiniciar.setForeground(java.awt.Color.WHITE); 
-    	botonReiniciar.setFocusPainted(false);
-    	botonReiniciar.addActionListener(e -> reiniciarJuego());
+        // Cargar la fuente una vez
+        fuentePixeled = cargarFuente("/imagenes/Pixeled.ttf", 28f);
 
-    	this.add(botonReiniciar);
-        
-        
+        botonReiniciar = new JButton("VOLVER A JUGAR");
+        botonReiniciar.setVisible(false);
+        botonReiniciar.setFont(fuentePixeled);
+        botonReiniciar.setBackground(java.awt.Color.RED);  
+        botonReiniciar.setForeground(java.awt.Color.WHITE); 
+        botonReiniciar.setFocusPainted(false);
+        botonReiniciar.addActionListener(e -> reiniciarJuego());
 
-        //Carga de texturas
-        
+        this.add(botonReiniciar);
+
+        // Carga de texturas
         try { fondo = ImageIO.read(getClass().getResource("/imagenes/fondo.jpg")); } 
         catch (IOException e) { System.out.println("No se pudo cargar la imagen de fondo"); }
         
@@ -90,7 +90,6 @@ public class PanelPrincipal extends JPanel {
         } catch (IOException e) { 
             System.out.println("No se pudo cargar la imagen de fondo"); 
         }
-
 
         try { pelota = ImageIO.read(getClass().getResource("/imagenes/pelotin.png")); } 
         catch (IOException e) { System.out.println("No se pudo cargar la imagen de la pelota"); }
@@ -122,7 +121,6 @@ public class PanelPrincipal extends JPanel {
         try { fondoempate1 = ImageIO.read(getClass().getResource("/imagenes/1-1.jpeg")); } 
         catch (IOException e) { System.out.println("No se pudo cargar la imagen de fondo"); }
         
-        
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -134,7 +132,6 @@ public class PanelPrincipal extends JPanel {
                 teclasPresionadas.remove(e.getKeyCode());
             }
         });
-
 
         timerJuego = new Timer(10, e -> {
             int panelHeight = getHeight();
@@ -187,15 +184,11 @@ public class PanelPrincipal extends JPanel {
         });
         
         timerJuego.start();
-        
-        
-
 
         timerCuenta = new Timer(1000, e -> {
             segundosTotales--;
             
-            
-          if (segundosTotales < 0) {
+            if (segundosTotales < 0) {
                 segundosTotales = 0;
 
                 timerJuego.stop();
@@ -242,7 +235,6 @@ public class PanelPrincipal extends JPanel {
                 } else {
                     mensajeGanador = "EMPATE";
                 }
-                
                 
                 if (!juegoTerminado) {
                     new Timer(2000, ev -> {
@@ -294,7 +286,6 @@ public class PanelPrincipal extends JPanel {
         botonReiniciar.setVisible(true);
     }
 
-    
     private void clampPositions() {
         int panelHeight = getHeight();
         int topMargin = (int) (panelHeight * 0.134);
@@ -302,11 +293,7 @@ public class PanelPrincipal extends JPanel {
         y1 = Math.max(topMargin, Math.min(y1, panelHeight - rectHeight));
         y2 = Math.max(topMargin, Math.min(y2, panelHeight - rectHeight));
     }
-    private void terminarJuego() {
-        timerJuego.stop();
-        timerCuenta.stop();
-      
-    }
+
     private void posicionarPaletasCentro() {
         int panelHeight = getHeight();
         y1 = (panelHeight - rectHeight) / 2;
@@ -319,7 +306,6 @@ public class PanelPrincipal extends JPanel {
     }
 
     private String formatearTiempo(int segundos) {
-    	
         int minutos = segundos / 60;
         int seg = segundos % 60;
         return String.format("%02d:%02d", minutos, seg);
@@ -335,11 +321,12 @@ public class PanelPrincipal extends JPanel {
         if (fondo != null) {
             g.drawImage(fondo, 0, 0, panelWidth, panelHeight, null);
         }
+
         if (mensajeGanador != null) {
-            g.setFont(new java.awt.Font("pixeled", java.awt.Font.BOLD, (int) (panelHeight * 0.1)));
+            g.setFont(fuentePixeled.deriveFont((float)(panelHeight * 0.1)));
             int anchoTextoGanador = g.getFontMetrics().stringWidth(mensajeGanador);
             g.setColor(java.awt.Color.YELLOW);
-            g.drawString(mensajeGanador, (panelWidth - anchoTextoGanador+5) / 2, panelHeight / 2);
+            g.drawString(mensajeGanador, (panelWidth - anchoTextoGanador + 5) / 2, panelHeight / 2);
         }
 
         rectWidth = (int) (panelWidth * 0.02);
@@ -354,13 +341,12 @@ public class PanelPrincipal extends JPanel {
             paletasCentradas = true;
         }
 
-
         g.setColor(java.awt.Color.WHITE);
-        g.setFont(new java.awt.Font("pixeled", java.awt.Font.BOLD, tamanoletra = (int) (panelHeight * 0.03)));
+        g.setFont(fuentePixeled.deriveFont((float)(panelHeight * 0.03)));
 
         // Resultado
         margen = (int) (panelHeight * 0.066);
-        g.drawString(Integer.toString(golesIzquierda), margen+20 , (int) (panelHeight * 0.09));
+        g.drawString(Integer.toString(golesIzquierda), margen + 20, (int) (panelHeight * 0.09));
         g.drawString(Integer.toString(golesDerecha), panelWidth - margen - 40, (int) (panelHeight * 0.09));
 
         // Temporizador
@@ -381,13 +367,27 @@ public class PanelPrincipal extends JPanel {
         if (pelota != null) {
             g.drawImage(pelota, pelotaX, pelotaY, pelotaSize, pelotaSize, null);
         }
-        
+
         if (botonReiniciar.isVisible()) {
             int botonAncho = 300;
             int botonAlto = 80;
             botonReiniciar.setBounds((panelWidth - botonAncho) / 2,
                     (panelHeight - botonAlto) / 2 + 100,
                     botonAncho, botonAlto);
+        }
+    }
+
+    private Font cargarFuente(String ruta, float size) {
+        try (InputStream is = getClass().getResourceAsStream(ruta)) {
+            if (is == null) {
+                System.out.println("No se encontró la fuente");
+                return new Font("SansSerif", Font.PLAIN, (int) size);
+            }
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            return font.deriveFont(Font.BOLD, size);
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+            return new Font("SansSerif", Font.PLAIN, (int) size);
         }
     }
 }
